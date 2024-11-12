@@ -37,17 +37,14 @@ const generateDynamicPassingObj = (dynamicObject: IDynamicPassingObj) => {
     return objectProperties;
 };
 
-export const generateYonyou = (
+export const updateById = (
     dynamicHeaderObject: IDynamicPassingObj,
     dynamicBodyObject: IDynamicPassingObj,
-    apiUrl?: {
-        apiUrl: string
-    }
+    apiUrl?: string
 ) => {
     //constructing the AST from the object
-console.log(apiUrl)
-const url = apiUrl?.apiUrl || "https://www.yonyou.com";
-debugger
+
+
     // Construct let body = object
     const bodyVariableDeclaration = t.variableDeclaration("let", [
         t.variableDeclarator(
@@ -68,7 +65,7 @@ debugger
     // let apiResponse = apiman("get", "URL",JSON.stringify(header),JSON.stringify(body));
     const apimanCall = t.callExpression(t.identifier("apiman"), [
         t.stringLiteral("get"),
-        t.stringLiteral(url),
+        t.stringLiteral(apiUrl),
         t.callExpression(
             t.memberExpression(t.identifier("JSON"), t.identifier("stringify")),
             [t.identifier("header")]
@@ -178,5 +175,4 @@ debugger
 
     return code;
 };
-
 

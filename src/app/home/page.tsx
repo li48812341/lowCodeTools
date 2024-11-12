@@ -44,19 +44,18 @@ console.log(res);
   // generate code
   const handleGenerate = () => {
     console.log('generate')
-    console.log(inputValue)
-    // axios.post('http://36.133.62.220:30080/gateway/openVedio/api/device/list?appId=c753a21f3a504486992fe3c74a499dda',
-    //   {
-    //     "page": 1,
-    //     "pageSize": 10
-    //   })
-    //   .then(function (response) {
-    //     console.log(response);
-    //     setOutputValue(response.data)
-    //   })
-    //   .catch(function (error) {
-    //     console.log(error);
-    //   });
+    axios.post('http://36.133.62.220:30080/converter/stream/subscribeDeviceEvent',
+      {
+        "page": 1,
+        "pageSize": 10
+      })
+      .then(function (response) {
+        console.log(response);
+        setOutputValue(response.data)
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
   return <div>
     <div className="flex111 justify-between">

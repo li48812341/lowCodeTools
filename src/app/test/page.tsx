@@ -1,9 +1,11 @@
 "use client"
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useState, ChangeEvent, FormEvent ,useEffect} from 'react';
 import { Select, MenuItem, TextField, Button, Container, Grid } from '@mui/material';
 import MonacoEditor from "../../component/MonacoEditor/MonacoEditor";
 import { localData ,localData1} from "../../utils/localData"
 import { generateYonyou } from "../../component/funcComponent/requestFun";
+
+// import { getGeneraFunNode } from "../../utils/getGenerationFun";
 
 type FormData = {
     name?: string;
@@ -44,10 +46,32 @@ function Test() {
         });
 
         console.log("params", params)
-        const result = generateYonyou(...params);
+        const dealParams = params.map(item => {
+            return {
+                // [item.key]: eval('(' + item.value + ')')
+                [item.key]:  item.value 
+            }
+        }
+        )
+        console.log("dealParams", dealParams)
+    // // 默认生成的代码
+    const result = generateYonyou(...dealParams); // 传递参数数组
+        // const result = generateYonyou(...params);
         console.log("result", result)
         setCode(result)
     }
+    // 动态根据函数生成对应ast转化函数
+    // const resultNode = getGeneraFunNode(selectedFun) as any;
+    // console.log("resultNode",resultNode);
+    // debugger
+
+    // const astResult = resultNode(...dealParams)
+    // console.log("result", astResult)
+    //     setCode(astResult)
+    // }
+    
+
+    
     // 处理编辑器内容变化的函数
   const handleEditorChange = (value: string | undefined) => {
     setCode(value || "");
@@ -60,6 +84,13 @@ function Test() {
   };
     // 查找选中的功能信息
     const selectedFunInfo = localData.find(item => item.funName === selectedFun)?.funInfo;
+
+    useEffect(() => {
+        console.log("selectedFunInfo", selectedFunInfo)
+        const aaa = selectedFun
+        console.log("aaa", aaa)
+        // setGenerateFunNode(selectedFun)
+    },[selectedFunInfo])
 
     // 根据选中的功能信息渲染表单
     const renderForm = () => {

@@ -1,5 +1,5 @@
-// const fs = require('fs');
-// const path = require('path');
+import babelTraverse from "@babel/traverse";
+import { parse, ParserPlugin } from "@babel/parser";
 import generate from "@babel/generator";
 import * as t from "@babel/types";
 
@@ -40,15 +40,12 @@ const generateDynamicPassingObj = (dynamicObject: IDynamicPassingObj) => {
 export const generateYonyou = (
     dynamicHeaderObject: IDynamicPassingObj,
     dynamicBodyObject: IDynamicPassingObj,
-    apiUrl?: {
-        apiUrl: string
-    }
+    apiUrl?: string
 ) => {
     //constructing the AST from the object
-console.log(apiUrl)
-const url = apiUrl?.apiUrl || "https://www.yonyou.com";
-debugger
-    // Construct let body = object
+    console.log(`dynamicHeaderObject`, dynamicHeaderObject)
+    console.log(`dynamicHeaderObject`, dynamicHeaderObject)
+    // construct let body = object
     const bodyVariableDeclaration = t.variableDeclaration("let", [
         t.variableDeclarator(
             t.identifier("body"),
@@ -56,7 +53,7 @@ debugger
         ),
     ]);
 
-    // Construct let header = object (修复命名重复问题)
+    // header object key:value
     const headerVariableDeclaration = t.variableDeclaration("let", [
         t.variableDeclarator(
             t.identifier("header"),
@@ -66,9 +63,10 @@ debugger
         ),
     ]);
     // let apiResponse = apiman("get", "URL",JSON.stringify(header),JSON.stringify(body));
+
     const apimanCall = t.callExpression(t.identifier("apiman"), [
         t.stringLiteral("get"),
-        t.stringLiteral(url),
+        t.stringLiteral("URL"),
         t.callExpression(
             t.memberExpression(t.identifier("JSON"), t.identifier("stringify")),
             [t.identifier("header")]
@@ -94,73 +92,44 @@ debugger
     ]);
 
     //  class MyAPIHandler extends AbstractAPIHandler {
-
+    
     const classDeclaration = t.classDeclaration(
-        t.identifier('MyAPIHandler'),
+        t.identifier('MyAPIHandler'), 
         t.identifier('AbstractAPIHandler'),
         t.classBody([
             //  execute(request){
             t.classMethod('method',
-                t.identifier('execute'),
+                t.identifier('execute'), 
                 [t.identifier('request')],
                 t.blockStatement([
-                    headerVariableDeclaration,
-                    bodyVariableDeclaration,
-                    apiResponseVariableDeclaration,
-                    //if (apiResponse.resultCode === 200) {
-                    t.ifStatement(
-                        t.binaryExpression(
-                            "===",
-                            t.memberExpression(t.identifier("apiResponse"), t.identifier("resultCode")),
-                            t.numericLiteral(200)
-                        ),
-                        t.blockStatement([
-                            //    var res = ObjectStore.updateById("AT1CD07E460F280004.AT1CD07E460F280004.SalesReceiptLeaf",object,"salespreorder");
-                            t.variableDeclaration("const", [
-                                t.variableDeclarator(
-                                  t.identifier("object"),
-                                  t.memberExpression(t.identifier("apiResponse"), t.identifier("data"))
+                    //    var res = ObjectStore.updateById("AT1CD07E460F280004.AT1CD07E460F280004.SalesReceiptLeaf",object,"salespreorder");
+                    t.variableDeclaration('var',
+                        [
+                            t.variableDeclarator(
+                                t.identifier('res'),
+                                t.callExpression(
+                                    t.memberExpression(
+                                        t.identifier('ObjectStore'),
+                                        t.identifier('updateById')
+                                    ),
+                                    [
+                                        t.stringLiteral('AT1CD07E460F280004.AT1CD07E460F280004.SalesReceiptLeaf'),
+                                        t.identifier('object'),
+                                        t.stringLiteral('salespreorder')
+                                    ]
                                 )
-                              ]),
-                            t.variableDeclaration('var',
-                                [
-                                    t.variableDeclarator(
-                                        t.identifier('res'),
-                                        t.callExpression(
-                                            t.memberExpression(
-                                                t.identifier('ObjectStore'),
-                                                t.identifier('updateById')
-                                            ),
-                                            [
-                                                //替换
-                                                t.stringLiteral('AT1CD07E460F280004.AT1CD07E460F280004.SalesReceiptLeaf'),
-                                                t.identifier('object'),
-                                                t.stringLiteral('salespreorder')
-                                            ]
-                                        )
-                                    )
-                                ]
-                            ),
-                            t.returnStatement(
-                                t.objectExpression([
-                                    t.objectProperty(
-                                        t.identifier('data'),                //  'data'
-                                        t.stringLiteral('success')           //  'success'
-                                    )
-                                ])
                             )
-                        ])
+                        ]
                     )
-
                     ,
                     //return {data: 'success'}
                     t.returnStatement(
                         t.objectExpression([
                             t.objectProperty(
-                                t.identifier('data'),                //  'data'
-                                t.stringLiteral('failed')           //  'success'
+                              t.identifier('data'),                //  'data'
+                              t.stringLiteral('success')           //  'success'
                             )
-                        ])
+                          ])
                     )
                 ])
             )
@@ -168,15 +137,15 @@ debugger
     )
 
     const generatedAst = t.program([
+        headerVariableDeclaration,
+        bodyVariableDeclaration,
+        apiResponseVariableDeclaration,
         abstractAPIHandlerDeclaration,
         classDeclaration
     ]);
-    const code = generate(generatedAst, {
-        compact: false,   // 生成非压缩的代码
-    }).code;
-    //   console.log(JSON.stringify(generatedAst, null, 2));
+    const {code} = generate(generatedAst,{jsescOption: {
+        minimal: true,
+    },});
 
     return code;
 };
-
-

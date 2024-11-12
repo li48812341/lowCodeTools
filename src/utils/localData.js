@@ -1,15 +1,16 @@
 export const localData = [{
-    funName: 'time',
+    funName: 'updateById',
     funInfo: {
         type: 'select',
         params: {
             'header': 'header',
-            'body': 'body'
+            'body': 'body',
+            "apiUrl": 'http://localhost:8080/api/v1/role/updateById'
         }
     },
     excuteFun: 'time',
 }, {
-    funName: 'request',
+    funName: 'generateYonyou',
     funInfo: {
         type: 'input',
         params: {

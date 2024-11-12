@@ -23,6 +23,12 @@
     ],
     "strictNullChecks": true
   },
+  "paths": {
+    "@/components/*": ["./src/components/*"],
+    "@/utils/*": ["./src/utils/*"],
+    "@/assets/*": ["./src/assets/*"],
+    "@/icons/*": ["./src/icons/*"]
+  },
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
